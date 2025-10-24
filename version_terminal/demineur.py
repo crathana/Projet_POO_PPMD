@@ -1,5 +1,4 @@
-from classes import Grille  # si ton code est dans demineur.py
-# ou copier/coller ton code complet avant ce script si tu veux un seul fichier
+from classes import Grille
 
 def demander_action():
     while True:
@@ -19,9 +18,30 @@ def demander_coordonnees(max_lignes, max_colonnes):
         except ValueError:
             print("Veuillez entrer des nombres entiers valides.")
 
+def demander_difficultee():
+    while True:
+        action = input("Difficulté ? (f = facile, m = moyen, d = difficile) : ").lower()
+        if action in ("f", "m", "d"):
+            return action
+        print("Action invalide. Tapez 'f', 'm' ou 'd'.")
+
+
 def jouer():
-    grille = Grille("Facile")
-    grille.generer_grille((0,0))
+    difficulte = demander_difficultee()
+    if difficulte == "f":
+        grille = Grille("Facile")
+    elif difficulte == "m":
+        grille = Grille("Moyen")
+    if difficulte == "d":
+        grille = Grille("Difficile")
+
+    print("Grille initiale (fictive) :")
+    grille.afficher_grille()
+
+    print("\nPremier clic (la grille sera générée à partir de cette case)")
+    x, y = demander_coordonnees(grille.taille[0], grille.taille[1])
+    grille.generer_grille((x, y))
+    grille.reveler(x, y)
 
     while grille.etat_grille == 0:
         print("\nGrille actuelle :")
