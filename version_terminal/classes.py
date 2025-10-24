@@ -80,10 +80,11 @@ class Grille:
 
     def generer_grille(self,case_depart):
         bombes=[]
+        voisins = self.voisins(case_depart[0],case_depart[1])
         for i in range(self.nb_bombes):
             x = random.randint(0,self.taille[0]-1)
             y = random.randint(0,self.taille[1]-1)
-            while (x,y) in bombes or (x,y) == case_depart or (x,y) in voisins(case_depart):
+            while (x,y) in bombes or (x,y) == case_depart or (x,y) in voisins:
                 x = random.randint(0,self.taille[0]-1)
                 y = random.randint(0,self.taille[1]-1)
             bombes.append((x,y))
