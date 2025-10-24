@@ -14,12 +14,12 @@ class Case:
             self.affichage = "🚩"
 
     def decocher_case(self):
-        if self.etat_case == -1:
+        if self.etat_case == -1: # seulement s'il y a un drapeau
             self.etat_case = 0
             self.affichage = "□"
 
     def reveler_case(self):
-        if self.etat_case == 0:  # on ne révèle que si elle est cachée
+        if self.etat_case == 0:  # seulement si elle est cachée
             self.etat_case = 1
 
 
@@ -30,7 +30,7 @@ class Case_safe(Case):
         self.nb_voisins = nb_voisins
 
     def reveler_case(self):
-        if self.etat_case == 0:  # on ne révèle que si elle est cachée
+        if self.etat_case == 0:  # seulement si elle est cachée
             self.etat_case = 1
             self.affichage = self.nb_voisins
 
@@ -41,7 +41,7 @@ class Case_bombe(Case):
         self.type_case = "bombe"
     
     def reveler_case(self):
-        if self.etat_case == 0:  # on ne révèle que si elle est cachée
+        if self.etat_case == 0:  # seulement si elle est cachée
             self.etat_case = 1
             self.affichage = "💣"
 
@@ -67,13 +67,13 @@ class Grille:
 
         self.grille = [[Case() for _ in range(self.taille[1])] for _ in range(self.taille[0])]
 
-    def voisins(self, r, c):
+    def voisins(self, x, y):
         liste = []
-        for dr in (-1, 0, 1):
-            for dc in (-1, 0, 1):
-                if dr == 0 and dc == 0:
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                if dx == 0 and dy == 0:
                     continue
-                rr, cc = r + dr, c + dc
+                rr, cc = x + dx, y + dy
                 if 0 <= rr < self.taille[0] and 0 <= cc < self.taille[1]:
                     liste.append((rr, cc))
         return liste
@@ -125,19 +125,17 @@ class Grille:
         case.reveler_case()
         self.nb_cases_safe-=1
 
-        # Si c'est une bombe → game over
+        # Si c'est une bombe c'est ciao
         if isinstance(case, Case_bombe):
             self.etat_grille = -1
             return
 
-        # Si la case a un chiffre > 0, on s'arrête là (pas de cascade)
         if case.affichage > 0:
             return
 
-        # Sinon affichage = 0 → on révèle les voisins en cascade
         for (rr, cc) in self.voisins(x, y):
-            if self.grille[rr][cc].etat_case == 0:  # on ne révèle que les cachées
-                self.reveler(rr, cc)  # récursion
+            if self.grille[rr][cc].etat_case == 0:
+                self.reveler(rr, cc)
             
 
     def cocher(self,x,y):
