@@ -137,7 +137,7 @@ class Grille:
 
         if case.affichage > 0:
             return
-
+        # Récursivité qui permet de révéler les cases voisines de la case révélée si cette case ne possède aucune bombe adjacente
         for (rr, cc) in self.voisins(x, y):
             if self.grille[rr][cc].etat_case == 0:
                 self.reveler(rr, cc)
