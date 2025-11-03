@@ -6,12 +6,12 @@ import random
 class Case:
     def __init__(self):
         self.etat_case = 0  # 0: cachée, 1: révélée, -1: marquée
-        self.affichage = "□"
+        self.affichage = "□" # l'affichage de base
 
     def cocher_case(self):
         if self.etat_case == 0:  # seulement si elle est cachée
             self.etat_case = -1
-            self.affichage = "🚩"
+            self.affichage = "🚩" # l'affichage lorsque la case est marquée
 
     def decocher_case(self):
         if self.etat_case == -1: # seulement s'il y a un drapeau
@@ -27,7 +27,7 @@ class Case_safe(Case):
     def __init__(self, nb_voisins):
         super().__init__()
         self.type_case="safe"
-        self.nb_voisins = nb_voisins
+        self.nb_voisins = nb_voisins # Doit afficher el nombre de bombes aux alentours
 
     def reveler_case(self):
         if self.etat_case == 0:  # seulement si elle est cachée
@@ -43,7 +43,7 @@ class Case_bombe(Case):
     def reveler_case(self):
         if self.etat_case == 0:  # seulement si elle est cachée
             self.etat_case = 1
-            self.affichage = "💣"
+            self.affichage = "💣" # assez explicite
 
     
 
@@ -68,6 +68,7 @@ class Grille:
         self.grille = [[Case() for _ in range(self.taille[1])] for _ in range(self.taille[0])]
 
     def voisins(self, x, y):
+        """ Renvoie une liste des coordonnées des cases voisines à la case (x,y) dans les limites de la grille"""
         liste = []
         for dx in (-1, 0, 1):
             for dy in (-1, 0, 1):
@@ -75,10 +76,11 @@ class Grille:
                     continue
                 rr, cc = x + dx, y + dy
                 if 0 <= rr < self.taille[0] and 0 <= cc < self.taille[1]:
-                    liste.append((rr, cc))
+                    liste.append((rr, cc)) 
         return liste
 
     def generer_grille(self,case_depart):
+        """ Génère la grille de telle sorte à ce qu'il n'y ait pas de bombes sur la case de départ choisie par le joueur"""
         bombes=[]
         voisins = self.voisins(case_depart[0],case_depart[1])
         for i in range(self.nb_bombes):
@@ -100,6 +102,7 @@ class Grille:
         return self.grille
     
     def nb_bombes_voisines(self, x, y):
+        """ Calcule le nombre de bombes dans un rayon de 1 case autour de la case (x,y)"""
         count = 0
         for (i, j) in self.voisins(x, y):
             if isinstance(self.grille[i][j], Case_bombe):
@@ -107,6 +110,7 @@ class Grille:
         return count
     
     def afficher_grille(self):
+        """ Gère l'affichage de la grille dans son état actuel"""
         for r in range(self.taille[0]):
             ligne = ""
             for c in range(self.taille[1]):
@@ -115,6 +119,7 @@ class Grille:
             print(ligne)
 
     def reveler(self, x, y):
+        """ Permet de révéler la case (x,y)"""
         case = self.grille[x][y]
 
         # Si déjà révélée ou marquée, on ne fait rien
@@ -139,17 +144,20 @@ class Grille:
             
 
     def cocher(self,x,y):
+        """ Permet de placer un drapeau sur la case (x,y)"""
         self.grille[x][y].cocher_case()
 
     def decocher_case(self,x,y):
+        """ Permet de retirer un drapeau de la case (x,y)"""
         self.grille[x][y].decocher_case()
     
     def test_grille_finie(self):
+        """ Teste si la grille est finie et place l'état de la grille sur 1"""
         if self.nb_cases_safe == 0:
             self.etat_grille = 1
     
     def fin_partie(self):
-
+        """ Détermine la fin de la partie"""
         if self.etat_grille == 1:
             return "Vous avez gagné !"
         
