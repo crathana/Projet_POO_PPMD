@@ -1,6 +1,9 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QPushButton, QGridLayout, QMessageBox, QInputDialog
+)
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QIcon
 from classes import Grille, Case_bombe, Case_safe
 
 
@@ -10,11 +13,10 @@ class DemineurGUI(QWidget):
 
         # Moteur du jeu
         self.grille = Grille(difficulte)
-
         self.premier_clic = True
 
         # UI
-        self.setWindowTitle("Démineur")
+        self.setWindowTitle(f"Démineur — {difficulte}")
         self.layout = QGridLayout()
         self.setLayout(self.layout)
 
@@ -23,12 +25,15 @@ class DemineurGUI(QWidget):
 
     def creer_grille(self):
         """Crée les boutons graphiques"""
+        couleurs = ["#EEEED2", "#555A6A"]
+
         for i in range(self.grille.taille[0]):
             ligne = []
             for j in range(self.grille.taille[1]):
                 bouton = QPushButton(" ")
-                bouton.setFixedSize(35, 35)
-                bouton.setStyleSheet("font-size: 16px;")
+                bouton.setFixedSize(50, 50)
+                couleur = couleurs[(i + j) % 2]
+                bouton.setStyleSheet(f"background-color: {couleur}; font-size: 20px; border: none;")
                 bouton.mousePressEvent = lambda e, x=i, y=j: self.clic_case(e, x, y)
                 self.layout.addWidget(bouton, i, j)
                 ligne.append(bouton)
@@ -37,7 +42,6 @@ class DemineurGUI(QWidget):
     def clic_case(self, event, x, y):
         """Gestion clic gauche / droit"""
 
-        # PREMIER CLIC → on génère la grille
         if self.premier_clic:
             self.grille.generer_grille((x, y))
             self.premier_clic = False
@@ -65,37 +69,44 @@ class DemineurGUI(QWidget):
             self.grille.decocher_case(x, y)
 
     def mettre_a_jour_affichage(self):
-        """Affiche dans l’UI ce que ton moteur a décidé"""
         for i in range(self.grille.taille[0]):
             for j in range(self.grille.taille[1]):
                 bouton = self.boutons[i][j]
                 case = self.grille.grille[i][j]
 
+                bouton.setIcon(QIcon())
+                bouton.setText(" ")
+
                 if case.etat_case == 0:
-                    bouton.setText(" ")
                     bouton.setEnabled(True)
 
                 elif case.etat_case == -1:
-                    bouton.setText("🚩")
                     bouton.setEnabled(True)
+                    bouton.setIcon(QIcon(case.affichage))
+                    bouton.setIconSize(QSize(40, 40))
 
                 elif case.etat_case == 1:
                     bouton.setEnabled(False)
+                    couleur_fond = "#FFFFFF"
+                    bouton.setStyleSheet(f"""
+                        background-color: {couleur_fond};
+                        font-size: 20px;
+                        border: none;
+                    """)
 
                     if isinstance(case, Case_bombe):
-                        bouton.setText("💣")
+                        bouton.setIcon(QIcon(case.affichage))
+                        bouton.setIconSize(QSize(40, 40))
                     elif isinstance(case, Case_safe):
                         bouton.setText(str(case.nb_voisins) if case.nb_voisins > 0 else "")
 
     def fin_partie(self):
-        """Révèle tout + popup"""
         self.mettre_a_jour_affichage()
         msg = QMessageBox()
         msg.setWindowTitle("Fin de partie")
         msg.setText(self.grille.fin_partie())
         msg.exec_()
 
-        # Bloquer la grille après fin
         for ligne in self.boutons:
             for bouton in ligne:
                 bouton.setEnabled(False)
@@ -103,6 +114,14 @@ class DemineurGUI(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    gui = DemineurGUI("Facile")
-    gui.show()
-    sys.exit(app.exec_())
+
+    # 🔹 Choix de la difficulté avant de lancer la partie
+    niveaux = ["Facile", "Moyen", "Difficile"]
+    difficulte, ok = QInputDialog.getItem(
+        None, "Choisir la difficulté", "Niveau :", niveaux, 0, False
+    )
+
+    if ok and difficulte:
+        gui = DemineurGUI(difficulte)
+        gui.show()
+        sys.exit(app.exec_())

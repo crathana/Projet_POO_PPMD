@@ -1,5 +1,7 @@
 import numpy as np
 import random
+import os 
+
 
 ### Code du jeu du démineur sur terminal
 
@@ -8,10 +10,22 @@ class Case:
         self.etat_case = 0  # 0: cachée, 1: révélée, -1: marquée
         self.affichage = "□" # l'affichage de base
 
+    def definir_affichage_drapeau(self):
+        """Choisit une pièce d'échec aléatoire et définit son chemin d’image."""
+        pieces_echec = {0: "pion", 1: "tour", 2: "cavalier", 3: "fou", 4: "dame", 5: "roi"}
+        tirage = random.randint(0, 5)
+
+        dossier_courant = os.path.dirname(__file__)
+        chemin_image = os.path.join(dossier_courant, "images_drapeaux", f"{pieces_echec[tirage]}.png")
+
+        self.affichage = chemin_image
+
+
     def cocher_case(self):
         if self.etat_case == 0:  # seulement si elle est cachée
             self.etat_case = -1
-            self.affichage = "🚩" # l'affichage lorsque la case est marquée
+            self.definir_affichage_drapeau()
+            
 
     def decocher_case(self):
         if self.etat_case == -1: # seulement s'il y a un drapeau
@@ -43,7 +57,9 @@ class Case_bombe(Case):
     def reveler_case(self):
         if self.etat_case == 0:  # seulement si elle est cachée
             self.etat_case = 1
-            self.affichage = "💣" # assez explicite
+            dossier_courant = os.path.dirname(__file__)
+            chemin_image = os.path.join(dossier_courant, "images_drapeaux", "dame_noire.png")
+            self.affichage = chemin_image
 
     
 
@@ -164,7 +180,7 @@ class Grille:
         if self.etat_grille == -1:
             return "Vous avez perdu !"
 
-    
+
 
 
 
