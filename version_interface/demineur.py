@@ -21,17 +21,22 @@ class DemineurGUI(QWidget):
         self.setLayout(self.layout)
 
         self.boutons = []
-        self.creer_grille()
+        self.creer_grille(difficulte)
+        self.difficulte = difficulte
 
-    def creer_grille(self):
-        """Crée les boutons graphiques"""
+    def creer_grille(self,difficulte):
         couleurs = ["#EEEED2", "#555A6A"]
 
         for i in range(self.grille.taille[0]):
             ligne = []
             for j in range(self.grille.taille[1]):
                 bouton = QPushButton(" ")
-                bouton.setFixedSize(50, 50)
+                if difficulte == "Facile":
+                    bouton.setFixedSize(50, 50)
+                if difficulte == "Moyen":
+                    bouton.setFixedSize(40, 40)
+                if difficulte =="Difficile":
+                    bouton.setFixedSize(30, 30)
                 couleur = couleurs[(i + j) % 2]
                 bouton.setStyleSheet(f"background-color: {couleur}; font-size: 20px; border: none;")
                 bouton.mousePressEvent = lambda e, x=i, y=j: self.clic_case(e, x, y)
@@ -40,7 +45,6 @@ class DemineurGUI(QWidget):
             self.boutons.append(ligne)
 
     def clic_case(self, event, x, y):
-        """Gestion clic gauche / droit"""
 
         if self.premier_clic:
             self.grille.generer_grille((x, y))
@@ -83,7 +87,12 @@ class DemineurGUI(QWidget):
                 elif case.etat_case == -1:
                     bouton.setEnabled(True)
                     bouton.setIcon(QIcon(case.affichage))
-                    bouton.setIconSize(QSize(40, 40))
+                    if self.difficulte == "Facile":
+                        bouton.setIconSize(QSize(40, 40))
+                    if self.difficulte == "Moyen":
+                        bouton.setIconSize(QSize(30, 30))
+                    if self.difficulte == "Difficile":
+                        bouton.setIconSize(QSize(20, 20))
 
                 elif case.etat_case == 1:
                     bouton.setEnabled(False)
@@ -96,7 +105,12 @@ class DemineurGUI(QWidget):
 
                     if isinstance(case, Case_bombe):
                         bouton.setIcon(QIcon(case.affichage))
-                        bouton.setIconSize(QSize(40, 40))
+                        if self.difficulte == "Facile":
+                            bouton.setIconSize(QSize(40, 40))
+                        if self.difficulte == "Moyen":
+                            bouton.setIconSize(QSize(30, 30))
+                        if self.difficulte == "Difficile":
+                            bouton.setIconSize(QSize(20, 20))
                     elif isinstance(case, Case_safe):
                         bouton.setText(str(case.nb_voisins) if case.nb_voisins > 0 else "")
 
@@ -115,7 +129,6 @@ class DemineurGUI(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # 🔹 Choix de la difficulté avant de lancer la partie
     niveaux = ["Facile", "Moyen", "Difficile"]
     difficulte, ok = QInputDialog.getItem(
         None, "Choisir la difficulté", "Niveau :", niveaux, 0, False
